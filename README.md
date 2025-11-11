@@ -1,64 +1,67 @@
-markdown## User Info
-- **Current time**: November 11, 2025 06:09 PM CET  
-- **Country**: SE (Sweden)
-
----
-
-## Схема работы Istio Ambient Ingress (1.24.1)
+## Istio Ambient Ingress – схема (11 ноября 2025)
 
 ```mermaid
 flowchart TD
-    %% Internet
-    subgraph Internet_Client
-        A[Client (curl/browser)]
-        B[DNS *.moscow.alfaintra.net -> 10.211.64.93]
+    %% ── Клиент ───────────────────────────────────────
+    subgraph Client
+        A[Client (curl / browser)]
+        B[DNS *.moscow.alfaintra.net → 10.211.64.93]
     end
-    %% MetalLB
+
+    %% ── MetalLB ───────────────────────────────────────
     subgraph MetalLB
         C[MetalLB L2 IP: 10.211.64.93]
     end
-    %% istio-system
+
+    %% ── istio-system ───────────────────────────────────
     subgraph istio_system
-        D[Service: istio-ingress LB -> ztunnel]
+        D[Service: istio-ingress LB → ztunnel]
         E[ztunnel L4 mTLS/HBONE]
         F[Gateway: istio-ingress-test Port:8080]
     end
-    %% Waypoint
-    subgraph Waypoint_Proxy
+
+    %% ── Waypoint (L7) ──────────────────────────────────
+    subgraph Waypoint
         G[Waypoint L7 Envoy VirtualService]
     end
-    %% dev
+
+    %% ── dev ───────────────────────────────────────────
     subgraph dev
         VS1[vs-01-robots]
         VS2[vs-02-frontend /]
         VS3[vs-03-restapi rest.*]
-        VS8[vs-08-graphql /graphql -> /]
-        VS9[vs-09-restserver /rest -> /]
-        VS10[vs-10-metrics /authmodule -> /]
+        VS8[vs-08-graphql /graphql → /]
+        VS9[vs-09-restserver /rest → /]
+        VS10[vs-10-metrics /authmodule → /]
+
         P1[unity-frontend:80]
         P2[unity-graphql:8880]
         P3[unity-restapi:8880]
         P4[unity-restserver:8880]
         P5[unity-authmodule:9090]
     end
-    %% longhorn
+
+    %% ── longhorn-system ───────────────────────────────
     subgraph longhorn_system
         VS4[vs-04-longhorn]
         P6[longhorn-frontend:80]
     end
-    %% minio
+
+    %% ── minio-operator ───────────────────────────────
     subgraph minio_operator
         VS5[vs-05-minio]
         VS6[vs-06-minio-console]
         P7[minio:9000]
         P8[minio-console:9090]
     end
-    %% monitoring
+
+    %% ── monitoring ───────────────────────────────────
     subgraph monitoring
         VS7[vs-07-monitoring]
         P9[kps-kube-state-metrics:8080]
     end
-    %% Flow
+
+    %% ── Поток ────────────────────────────────────────
     A --> B --> C --> D --> E --> F --> G
     G --> VS1 --> P1
     G --> VS2 --> P1
@@ -70,12 +73,14 @@ flowchart TD
     G --> VS8 --> P2
     G --> VS9 --> P4
     G --> VS10 --> P5
-    %% Style
+
+    %% ── Стили ────────────────────────────────────────
     classDef client fill:#e1f5fe,stroke:#333
     classDef infra fill:#fff3e0,stroke:#333
     classDef istio fill:#f3e5f5,stroke:#333
     classDef waypoint fill:#e8f5e8,stroke:#333
     classDef vs fill:#fff9c4,stroke:#333
+
     class A client
     class C infra
     class E,F istio
