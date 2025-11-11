@@ -4,7 +4,6 @@
 
 ---
 
-## Схема работы Istio Ambient Ingress (1.24.1) — **100 % совместима с GitHub**
 
 ```mermaid
 flowchart TD
