@@ -1,4 +1,10 @@
-## Istio Ambient Ingress – схема (11 ноября 2025)
+## User Info
+- **Current time**: November 11, 2025 06:11 PM CET  
+- **Country**: SE (Sweden)
+
+---
+
+## Схема работы Istio Ambient Ingress (1.24.1) — **100 % совместима с GitHub**
 
 ```mermaid
 flowchart TD
