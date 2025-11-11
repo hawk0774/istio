@@ -1,48 +1,60 @@
-# Схема работы Istio Ambient Ingress (1.24.1)
-
 ```mermaid
 flowchart TD
-    %% ── Интернет ────────────────────────────────────────
-    subgraph Интернет_Клиент
-        A[Клиент\n(curl / браузер)]
-        B[DNS\n*.moscow.alfaintra.net\n→ 10.211.64.93]
+    %% Internet
+    subgraph Internet_Client
+        A[Client (curl/browser)]
+        B[DNS *.moscow.alfaintra.net -> 10.211.64.93]
     end
 
-    %% ── MetalLB ────────────────────────────────────────
+    %% MetalLB
     subgraph MetalLB
-        C[MetalLB\nL2Advertisement\nIP: 10.211.64.93/32]
+        C[MetalLB L2 IP: 10.211.64.93]
     end
 
-    %% ── istio-system ───────────────────────────────────
+    %% istio-system
     subgraph istio_system
-        D[Service: istio‑ingress\nLoadBalancer → ztunnel]
-        E[ztunnel (L4)\nmTLS, HBONE]
-        F[Gateway: istio‑ingress‑test\nPort: 8080, HTTP]
+        D[Service: istio-ingress LB -> ztunnel]
+        E[ztunnel L4 mTLS/HBONE]
+        F[Gateway: istio-ingress-test Port:8080]
     end
 
-    %% ── Waypoint (L7) ──────────────────────────────────
+    %% Waypoint
     subgraph Waypoint_Proxy
-        G[Waypoint Proxy\n(L7 Envoy)\nVirtualService, rewrite, robots.txt]
+        G[Waypoint L7 Envoy VirtualService]
     end
 
-    %% ── dev ───────────────────────────────────────────
+    %% dev
     subgraph dev
-        VS1[vs‑01‑robots‑selective.yaml\nrobots.txt (только публичные)]
-        VS2[vs‑02‑frontend.yaml\n/ → unity‑frontend]
-        VS3[vs‑03‑restapi.yaml\nrest.* → unity‑restapi]
-        VS8[vs‑08‑graphql.yaml\n/graphql → / (rewrite)]
-        VS9[vs‑09‑restserver.yaml\n/rest → / (rewrite)]
-        VS10[vs‑10‑metrics‑services.yaml\n/authmodule, /platform … → / (rewrite)]
+        VS1[vs-01-robots]
+        VS2[vs-02-frontend /]
+        VS3[vs-03-restapi rest.*]
+        VS8[vs-08-graphql /graphql -> /]
+        VS9[vs-09-restserver /rest -> /]
+        VS10[vs-10-metrics /authmodule -> /]
 
-        POD1[unity‑frontend\n:80]
-        POD2[unity‑graphql\n:8880]
-        POD3[unity‑restapi\n:8880]
-        POD4[unity‑restserver\n:8880]
-        POD5[unity‑authmodule\n:9090]
+        P1[unity-frontend:80]
+        P2[unity-graphql:8880]
+        P3[unity-restapi:8880]
+        P4[unity-restserver:8880]
+        P5[unity-authmodule:9090]
     end
 
-    %% ── longhorn‑system ───────────────────────────────
+    %% longhorn
     subgraph longhorn_system
-        VS4[vs‑04‑longhorn.yaml\nibunikube4 → longhorn‑frontend]
-        POD6[longhorn‑frontend\n:80]
+        VS4[vs-04-longhorn]
+        P6[longhorn-frontend:80]
+    end
+
+    %% minio
+    subgraph minio_operator
+        VS5[vs-05-minio]
+        VS6[vs-06-minio-console]
+        P7[minio:9000]
+        P8[minio-console:9090]
+    end
+
+    %% monitoring
+    subgraph monitoring
+        VS7[vs-07-monitoring]
+        P9[kps-kube-state-metrics:8080]
     end
